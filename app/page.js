@@ -1,66 +1,45 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+import { useState } from "react";
+import Navbar from "@/components/Navbar";
+import SearchBar from "@/components/SearchBar";
+import MovieGrid from "@/components/MovieGrid";
+import MovieModal from "@/components/MovieModal";
+import { useMovies } from "@/hooks/useMovies";
+import { useWatchlist } from "@/hooks/useWatchlist";
 
 export default function Home() {
+  const { movies, loading, error, handleSearch } = useMovies();
+  const { watchlist, addToWatchlist, removeFromWatchlist, isInWatchlist } = useWatchlist();
+  const [selected, setSelected] = useState(null);
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.js file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#fff", fontFamily: "system-ui, sans-serif" }}>
+      <Navbar watchlistCount={watchlist.length} />
+      <main style={{ maxWidth: "1100px", margin: "0 auto", padding: "40px 20px" }}>
+        <div style={{ textAlign: "center", marginBottom: "36px" }}>
+          <h1 style={{ fontSize: "38px", fontWeight: "800", margin: "0 0 10px", letterSpacing: "-0.03em" }}>
+            Find Your Next Movie
+          </h1>
+          <p style={{ color: "#666", marginBottom: "28px" }}>
+            Search millions of movies and build your watchlist
           </p>
+          <SearchBar onSearch={handleSearch} />
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+        <MovieGrid
+          movies={movies}
+          loading={loading}
+          error={error}
+          onSelect={setSelected}
+          onWatchlist={{ add: addToWatchlist, remove: removeFromWatchlist }}
+          isInWatchlist={isInWatchlist}
+        />
       </main>
+      <MovieModal
+        movie={selected}
+        onClose={() => setSelected(null)}
+        onWatchlist={{ add: addToWatchlist, remove: removeFromWatchlist }}
+        isInWatchlist={isInWatchlist}
+      />
     </div>
   );
 }
