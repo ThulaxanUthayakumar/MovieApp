@@ -7,6 +7,7 @@ export default function MovieModal({ movie, onClose, onWatchlist, isInWatchlist 
 
   useEffect(() => {
     if (!movie) return;
+    setDetail(null);
     setLoading(true);
     getMovieById(movie.imdbID).then((data) => {
       setDetail(data);
@@ -15,45 +16,38 @@ export default function MovieModal({ movie, onClose, onWatchlist, isInWatchlist 
   }, [movie]);
 
   if (!movie) return null;
-
   const inList = isInWatchlist(movie.imdbID);
 
   return (
-    <div onClick={onClose} style={styles.overlay}>
-      <div onClick={(e) => e.stopPropagation()} style={styles.modal}>
-        <button onClick={onClose} style={styles.closeBtn}>✕</button>
-
+    <div onClick={onClose} style={s.overlay}>
+      <div onClick={(e) => e.stopPropagation()} style={s.modal}>
+        <button onClick={onClose} style={s.closeBtn}>✕</button>
         {loading ? (
-          <p style={{ color: "#666", padding: "40px", textAlign: "center" }}>Loading...</p>
+          <p style={{ color: "#666", padding: "60px", textAlign: "center" }}>Loading...</p>
         ) : detail ? (
-          <div style={styles.content}>
-            <div style={styles.top}>
-              <img
-                src={detail.Poster !== "N/A" ? detail.Poster : "/no-poster.png"}
-                alt={detail.Title}
-                style={styles.poster}
-              />
-              <div style={styles.meta}>
-                <h2 style={styles.title}>{detail.Title}</h2>
-                <div style={styles.tags}>
-                  <span style={styles.tag}>{detail.Year}</span>
-                  <span style={styles.tag}>{detail.Rated}</span>
-                  <span style={styles.tag}>{detail.Runtime}</span>
+          <div style={s.content}>
+            <div style={s.top}>
+              {detail.Poster !== "N/A"
+                ? <img src={detail.Poster} alt={detail.Title} style={s.poster} />
+                : <div style={s.noPoster}>🎬</div>
+              }
+              <div style={{ flex: 1 }}>
+                <h2 style={s.title}>{detail.Title}</h2>
+                <div style={s.tags}>
+                  <span style={s.tag}>{detail.Year}</span>
+                  {detail.Rated !== "N/A" && <span style={s.tag}>{detail.Rated}</span>}
+                  {detail.Runtime !== "N/A" && <span style={s.tag}>{detail.Runtime}</span>}
+                  {detail.Genre && <span style={s.tag}>{detail.Genre.split(",")[0]}</span>}
                 </div>
-                <p style={styles.genre}>{detail.Genre}</p>
-                <div style={styles.rating}>
-                  ⭐ <strong>{detail.imdbRating}</strong> / 10
-                  <span style={styles.votes}>({detail.imdbVotes} votes)</span>
-                </div>
-                <p style={styles.plot}>{detail.Plot}</p>
-                <p style={styles.crew}><strong>Director:</strong> {detail.Director}</p>
-                <p style={styles.crew}><strong>Cast:</strong> {detail.Actors}</p>
+                {detail.imdbRating !== "N/A" && (
+                  <p style={s.rating}>⭐ <strong>{detail.imdbRating}</strong> / 10</p>
+                )}
+                <p style={s.plot}>{detail.Plot}</p>
+                {detail.Director !== "N/A" && <p style={s.crew}><strong>Director:</strong> {detail.Director}</p>}
+                {detail.Actors !== "N/A" && <p style={s.crew}><strong>Cast:</strong> {detail.Actors}</p>}
                 <button
                   onClick={() => inList ? onWatchlist.remove(movie.imdbID) : onWatchlist.add(movie)}
-                  style={{
-                    ...styles.watchlistBtn,
-                    background: inList ? "#333" : "#e50914",
-                  }}
+                  style={{ ...s.wlBtn, background: inList ? "#1a1a1a" : "#e50914" }}
                 >
                   {inList ? "✕ Remove from Watchlist" : "❤️ Add to Watchlist"}
                 </button>
@@ -68,40 +62,19 @@ export default function MovieModal({ movie, onClose, onWatchlist, isInWatchlist 
   );
 }
 
-const styles = {
-  overlay: {
-    position: "fixed", inset: 0,
-    background: "rgba(0,0,0,0.85)",
-    display: "flex", alignItems: "center", justifyContent: "center",
-    zIndex: 100, padding: "20px",
-  },
-  modal: {
-    background: "#111", borderRadius: "16px",
-    maxWidth: "760px", width: "100%",
-    maxHeight: "90vh", overflowY: "auto",
-    position: "relative", border: "1px solid #222",
-  },
-  closeBtn: {
-    position: "absolute", top: "14px", right: "14px",
-    background: "#222", border: "none", color: "#fff",
-    fontSize: "16px", cursor: "pointer", borderRadius: "50%",
-    width: "32px", height: "32px", zIndex: 10,
-  },
+const s = {
+  overlay: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, padding: "20px" },
+  modal: { background: "#111", borderRadius: "16px", maxWidth: "760px", width: "100%", maxHeight: "90vh", overflowY: "auto", position: "relative", border: "1px solid #222" },
+  closeBtn: { position: "absolute", top: "14px", right: "14px", background: "#222", border: "none", color: "#fff", fontSize: "16px", cursor: "pointer", borderRadius: "50%", width: "32px", height: "32px", zIndex: 10 },
   content: { padding: "28px" },
-  top: { display: "flex", gap: "24px" },
+  top: { display: "flex", gap: "24px", flexWrap: "wrap" },
   poster: { width: "180px", height: "260px", objectFit: "cover", borderRadius: "10px", flexShrink: 0 },
-  meta: { flex: 1 },
+  noPoster: { width: "180px", height: "260px", display: "flex", alignItems: "center", justifyContent: "center", background: "#1a1a1a", borderRadius: "10px", fontSize: "48px", flexShrink: 0 },
   title: { fontSize: "22px", fontWeight: "800", color: "#fff", margin: "0 0 12px" },
   tags: { display: "flex", gap: "8px", marginBottom: "10px", flexWrap: "wrap" },
   tag: { background: "#222", color: "#aaa", fontSize: "11px", fontWeight: "600", padding: "4px 10px", borderRadius: "20px", border: "1px solid #333" },
-  genre: { fontSize: "13px", color: "#888", marginBottom: "10px" },
-  rating: { fontSize: "16px", color: "#f5c518", marginBottom: "12px", display: "flex", alignItems: "center", gap: "6px" },
-  votes: { fontSize: "12px", color: "#666" },
+  rating: { fontSize: "16px", color: "#f5c518", marginBottom: "12px" },
   plot: { fontSize: "14px", color: "#ccc", lineHeight: "1.6", marginBottom: "14px" },
   crew: { fontSize: "13px", color: "#888", marginBottom: "6px" },
-  watchlistBtn: {
-    marginTop: "16px", padding: "11px 22px", border: "none",
-    borderRadius: "10px", color: "#fff", fontSize: "14px",
-    fontWeight: "700", cursor: "pointer", width: "100%",
-  },
+  wlBtn: { marginTop: "16px", padding: "11px 22px", border: "none", borderRadius: "10px", color: "#fff", fontSize: "14px", fontWeight: "700", cursor: "pointer", width: "100%" },
 };

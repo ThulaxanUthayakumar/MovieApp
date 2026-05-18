@@ -8,21 +8,44 @@ export function useWatchlist() {
     if (saved) setWatchlist(JSON.parse(saved));
   }, []);
 
-  function addToWatchlist(movie) {
-    const updated = [...watchlist, movie];
+  function save(updated) {
     setWatchlist(updated);
     localStorage.setItem("watchlist", JSON.stringify(updated));
   }
 
+  function addToWatchlist(movie) {
+    if (watchlist.some((m) => m.imdbID === movie.imdbID)) return;
+    save([...watchlist, movie]);
+  }
+
   function removeFromWatchlist(imdbID) {
-    const updated = watchlist.filter((m) => m.imdbID !== imdbID);
-    setWatchlist(updated);
-    localStorage.setItem("watchlist", JSON.stringify(updated));
+    save(watchlist.filter((m) => m.imdbID !== imdbID));
+  }
+
+  function updateMovie(imdbID, changes) {
+    save(watchlist.map((m) => (m.imdbID === imdbID ? { ...m, ...changes } : m)));
+  }
+
+  function addCustomMovie(data) {
+    const movie = {
+      ...data,
+      imdbID: "custom_" + Date.now(),
+      Poster: "N/A",
+      isCustom: true,
+    };
+    save([...watchlist, movie]);
   }
 
   function isInWatchlist(imdbID) {
     return watchlist.some((m) => m.imdbID === imdbID);
   }
 
-  return { watchlist, addToWatchlist, removeFromWatchlist, isInWatchlist };
+  return {
+    watchlist,
+    addToWatchlist,
+    removeFromWatchlist,
+    updateMovie,
+    addCustomMovie,
+    isInWatchlist,
+  };
 }

@@ -5,7 +5,6 @@ export function useMovies() {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [query, setQuery] = useState("");
 
   useEffect(() => {
     loadPopular();
@@ -24,29 +23,27 @@ export function useMovies() {
     }
   }
 
-  // Debounced search — waits 500ms after user stops typing
-  const handleSearch = useCallback(async (searchQuery) => {
-    if (!searchQuery.trim()) {
+  const handleSearch = useCallback(async (query) => {
+    if (!query.trim()) {
       loadPopular();
       return;
     }
-    setQuery(searchQuery);
     setLoading(true);
     setError(null);
     try {
-      const { movies: results } = await searchMovies(searchQuery);
-      if (results.length === 0) {
-        setError(`No movies found for "${searchQuery}"`);
+      const data = await searchMovies(query);
+      if (!data.length) {
+        setError(`No results found for "${query}"`);
         setMovies([]);
       } else {
-        setMovies(results);
+        setMovies(data);
       }
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError("Something went wrong. Try again.");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  return { movies, loading, error, query, handleSearch };
+  return { movies, loading, error, handleSearch };
 }

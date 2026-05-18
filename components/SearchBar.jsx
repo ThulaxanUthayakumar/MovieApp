@@ -3,61 +3,34 @@ import { useState, useEffect } from "react";
 export default function SearchBar({ onSearch }) {
   const [input, setInput] = useState("");
 
-  // Debounce — search fires 500ms after user stops typing
   useEffect(() => {
-    const timer = setTimeout(() => {
-      onSearch(input);
-    }, 500);
+    const timer = setTimeout(() => onSearch(input), 500);
     return () => clearTimeout(timer);
   }, [input]);
 
   return (
-    <div style={styles.wrapper}>
-      <span style={styles.icon}>🔍</span>
+    <div style={{ position: "relative", maxWidth: "600px", margin: "0 auto" }}>
+      <span style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", fontSize: "16px" }}>🔍</span>
       <input
         type="text"
-        placeholder="Search movies..."
+        placeholder="Search movies... e.g. Inception, Batman"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        style={styles.input}
+        style={{
+          width: "100%", padding: "14px 44px",
+          fontSize: "15px", background: "#1a1a1a",
+          border: "1px solid #333", borderRadius: "12px",
+          color: "#fff", outline: "none",
+          fontFamily: "system-ui, sans-serif",
+          boxSizing: "border-box",
+        }}
       />
       {input && (
-        <button onClick={() => setInput("")} style={styles.clear}>✕</button>
+        <button
+          onClick={() => setInput("")}
+          style={{ position: "absolute", right: "14px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#666", cursor: "pointer", fontSize: "16px" }}
+        >✕</button>
       )}
     </div>
   );
 }
-
-const styles = {
-  wrapper: {
-    position: "relative",
-    maxWidth: "600px",
-    margin: "0 auto",
-    display: "flex",
-    alignItems: "center",
-  },
-  icon: {
-    position: "absolute",
-    left: "16px",
-    fontSize: "16px",
-  },
-  input: {
-    width: "100%",
-    padding: "14px 48px",
-    fontSize: "16px",
-    background: "#1a1a1a",
-    border: "1px solid #333",
-    borderRadius: "12px",
-    color: "#fff",
-    outline: "none",
-  },
-  clear: {
-    position: "absolute",
-    right: "14px",
-    background: "none",
-    border: "none",
-    color: "#666",
-    cursor: "pointer",
-    fontSize: "16px",
-  },
-};
